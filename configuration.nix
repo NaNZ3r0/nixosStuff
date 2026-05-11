@@ -9,11 +9,10 @@ in
 {
   imports =
     [ 
-      <unstable/nixos/modules/services/misc/homepage-dashboard.nix>
       ./hardware-configuration.nix
 
     ];
-  disabledModules = ["services/misc/homepage-dashboard.nix"];
+
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -68,7 +67,6 @@ in
   vscode
   wget
   unstable.go
-  unstable.homepage-dashboard
   flatpak
   docker
   demo-app
@@ -93,18 +91,6 @@ in
   };
 };
 
-
-
-  services.homepage-dashboard = {
-    enable = true;
-    package = unstable.homepage-dashboard;
-    listenPort = 8082;
-    bookmarks = [];
-  };
-
-  virtualisation.docker.enable = true;
-  services.flatpak.enable = true;
-  xdg.portal.enable = true;
 
 systemd.services.demo-app = {
   description = "Demo Echo Request Service";
