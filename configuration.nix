@@ -7,11 +7,7 @@ let
   unstable = import<unstable>{};
 in
 {
-  imports =
-    [ 
-      ./hardware-configuration.nix
 
-    ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
