@@ -58,6 +58,6 @@ systemd.services.demo-app = {
 };
 
   networking.networkmanager.enable = true;
-  networking.firewall.allowedTCPPorts = [ 22 ];
+  networking.firewall.allowedTCPPorts = [ 22 8080 ];
   security.sudo.enable = true;
 }
