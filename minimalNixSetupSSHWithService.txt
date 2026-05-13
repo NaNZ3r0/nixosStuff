@@ -1,0 +1,63 @@
+{ config, pkgs, ... }:
+
+{
+  imports = [ ./hardware-configuration.nix ];
+  system.stateVersion = "25.11";
+
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = true;
+    };
+  };
+
+  users.groups.wheel = {};
+
+  users.users.mira = {
+    isNormalUser = true;
+    extraGroups = [ "wheel" ];
+    initialPassword = "123";
+  };
+  
+  environment.systemPackages = with pkgs; [
+    demo-app
+  ];
+  
+  nixpkgs.config.packageOverrides = pkgs: {
+  demo-app = pkgs.buildGoModule rec {
+    pname = "demo-app";
+    version = "0.01";
+
+    # This replaces the local file dependency
+    src = pkgs.fetchFromGitHub {
+      owner = "NaNZ3r0";
+      repo = "demo-app";
+      rev = "main"; # or a specific commit hash
+      sha256 = "sha256-beZYPCMlLFDZFO8vazaiTN+sJOQiU/NikzdgVk0B5kI="; # Run rebuild once, then replace with the real hash Nix provides
+    };
+
+    # Vendor hash is required for Go modules; use pkgs.lib.fakeHash initially
+    vendorHash = null; 
+  };
+};
+
+
+systemd.services.demo-app = {
+  description = "Demo Echo Request Service";
+  wantedBy = [ "multi-user.target" ];
+  serviceConfig = {
+    # This automatically finds the 'demo-app' binary within the package
+    ExecStart = "${pkgs.demo-app}/bin/demo-app";
+    Restart = "always";
+
+    workingDirectory = "/var/lib/demo-app";
+  };
+};
+
+  networking.networkmanager.enable = true;
+  networking.firewall.allowedTCPPorts = [ 22 ];
+  security.sudo.enable = true;
+}
